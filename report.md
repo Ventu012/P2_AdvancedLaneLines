@@ -26,7 +26,7 @@ The goals / steps of this project are the following:
 [video1]: ./project_video.mp4 "Video"
 
 <div align="center">
-    <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/pipeline_output.png" width="500" />
+    <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/project_video_gif.gif" width="500" />
 </div>
 
 ##### [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -169,11 +169,13 @@ Here's an example of my output for this step.
 <div align="center">
     <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/project_video_gif.gif" width="500" />
 </div>
+Here's a [link to my video result](https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/test_videos_output/project_video.mp4)
 
 * Challenge Video:
 <div align="center">
     <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/challenge_video_gif.gif" width="500" />
 </div>
+Here's a [link to my video result](https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/test_videos_output/challenge_video.mp4)
 
 ---
 
