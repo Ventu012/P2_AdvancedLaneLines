@@ -54,7 +54,7 @@ I applied this distortion correction to the test image using the `cv2.undistort(
 
 ### 1. Provide an example of a distortion-corrected image.
 
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
+Here's an example of my output for this step:
 
 <div align="center">
     <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/undistorted_output.png" width="500" />
