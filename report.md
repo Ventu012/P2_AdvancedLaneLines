@@ -131,7 +131,7 @@ From the histogram I then divide the image based on the midpoint between the two
 All of this can be found in the `fit_polynomial_first()` and `find_lane_pixels_first()` functions of "AdvancedLaneFinding.ipynb".
 
 Once I've identifyed the lane lines of the first image i can switch to anothor tipe of search. The idea is that in the next image the lane line are likely to be in the same area of the lane lines identified in the previous image. 
-So in the `fit_polynomial_prior()` function of "AdvancedLaneFinding.ipynb" we are searching the new line lines using the previous lane lines +/- a margin as reference.
+So in the `fit_polynomial_prior()` function of "AdvancedLaneFinding.ipynb" we are searching the new lane lines using the previous lane lines +/- a margin as reference.
 
 Here's an example of my output for this step.
 
@@ -148,13 +148,14 @@ Here's an example of my output for this step.
 ### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
 I compute the curvature and the distance from center in the `get_curvature_and_center_delta()` function of "AdvancedLaneFinding.ipynb".
-In detail I call the `get_curvature_in_meter()` function of the Line Class that convert the lane fit in meters and then compute the curvature of the lane line. 
+In detail I call the `get_curvature_in_meter()` function of the Line Class that convert the lane fit in meters and then compute the curvature of the lane lines. 
 At last the average between the left and right line curvatures is computed and returned.
 
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-Ihis step is implemented in the `invert_transform()` function of "AdvancedLaneFinding.ipynb".
+This step is implemented in the `invert_transform()` function of "AdvancedLaneFinding.ipynb".
+
 Here's an example of my output for this step.
 
 <div align="center">
@@ -173,6 +174,7 @@ Here's an example of my output for this step.
 </div>
 Here's a [link to my video result](https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/test_videos_output/project_video.mp4)
 
+
 * Challenge Video:
 <div align="center">
     <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/challenge_video_gif.gif" width="500" />
@@ -187,12 +189,11 @@ Here's a [link to my video result](https://github.com/Ventu012/P2_AdvancedLaneLi
 
 The main issues I faced during the implementation of this project are the following: horizon detection and binary threshold parameters.
 Basically this issues presented when I obtain a good result on the Project Video and decided to apply it also on the Challenge Video.
-Not only the region of interest was wrong but also the binary threshold parameters used previously were not correct for the Challeng and I had to change both values manually.
+Not only the region of interest was wrong but also the binary threshold parameters used previously were not correct for the Challenge Video and I had to change both values manually.
 
 To make it more robust I could implement some sort of horizon detection using sobel-y and from there derive the region of interest, also for the binary threshold parameters we could try to find the best set of parameters to cover most of the situation found on the road.
-This could be done by dividing the original image in smaller image and, after computing the overall luminosity of the single smoller image, apply a specific set of binary threshold parameters to the smoller image. 
 
-Both of this suggestion could be usefull in the harder_challenge_video. In this video not only the horizion changes throught the entire video but also due to the frequent changes from sunny areas to shadow areas it is difficult to extract all the information using a single set of binary threshold parameters.
+Both of this suggestion could be usefull in the harder_challenge_video. In this video not only the horizion changes throught the entire video but also due to the frequent changes from sunny areas to shadow areas it is difficult to extract all information using a single set of binary threshold parameters.
 
 
 
