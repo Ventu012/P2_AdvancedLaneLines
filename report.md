@@ -135,10 +135,12 @@ So in the `fit_polynomial_prior()` function of "AdvancedLaneFinding.ipynb" we ar
 
 Here's an example of my output for this step.
 
+* `fit_polynomial_first()`
 <div align="center">
     <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/fit_polynomial_first_output.png" width="500" />
 </div>
 
+* `fit_polynomial_prior()`
 <div align="center">
     <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/fit_polynomial_prior_output.png" width="500" />
 </div>
