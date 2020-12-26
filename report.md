@@ -26,7 +26,7 @@ The goals / steps of this project are the following:
 [video1]: ./project_video.mp4 "Video"
 
 <div align="center">
-    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+    <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/pipeline_output.png" width="500" />
 </div>
 
 ##### [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -47,7 +47,7 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 I applied this distortion correction to the test image using the `cv2.undistort()`, computed by the undistort() function and obtained this result: 
 
 <div align="center">
-    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+    <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/undistorted_calibration_output.png" width="500" />
 </div>
 
 ## Pipeline (single images)
@@ -57,18 +57,19 @@ I applied this distortion correction to the test image using the `cv2.undistort(
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
 
 <div align="center">
-    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+    <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/undistorted_output.png" width="500" />
 </div>
 
 ### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
 I used a combination of color and gradient thresholds to generate a binary image, the steps can be found in the `hls_select()` function.
+
 In details from the original image I extract the following:
-    - From the RGB Image I extract the Red Channel and applying a binary threshold (r_thresh) I extract only the needed information.
-    - From the HLS Image I extract the H, L and S Channels and for each of them:
-        - H Channel: applying a binary threshold (h_thresh)
-        - L Channel: computing the Sobel along the x axis and applying a binary threshold (l_thresh)
-        - S Channel: applying a binary threshold (s_thresh)
+* From the RGB Image I extract the Red Channel and applying a binary threshold (r_thresh) I extract only the needed information.
+* From the HLS Image I extract the H, L and S Channels and for each of them:
+    1. H Channel: applying a binary threshold (h_thresh)
+    2. L Channel: computing the Sobel along the x axis and applying a binary threshold (l_thresh)
+    3. S Channel: applying a binary threshold (s_thresh)
 
 In the end I compute the output binary image by applying the OR operation between the single Binary threshold Red, H, L and S.
 
@@ -77,22 +78,22 @@ color_binary[(l_binary_output == 1) | (r_binary_output == 1) | ((s_binary_output
 Here's an example of my output for this step.
 
 <div align="center">
-    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+    <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/binary_output.png" width="500" />
 </div>
 
 The binary threshold used in the Project Videos are the following:
-       - Project Video: hls_select(img, s_thresh=(100, 255), l_thresh=(10, 100), r_thresh=(200, 255), h_thresh=(18,25), debug=0)
-       - Challenge Video: hls_select(img, s_thresh=(50, 255), l_thresh=(50, 100), r_thresh=(180, 255), h_thresh=(20,25), debug=0)
+* Project Video: hls_select(img, s_thresh=(100, 255), l_thresh=(10, 100), r_thresh=(200, 255), h_thresh=(18,25), debug=0)
+* Challenge Video: hls_select(img, s_thresh=(50, 255), l_thresh=(50, 100), r_thresh=(180, 255), h_thresh=(20,25), debug=0)
 
 ### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
 The code that generates my perspective transform is contained in the `undistort_and_unwarp()` function of "AdvancedLaneFinding.ipynb", it includes a function called `cv2.warpPerspective()`.  
 The `undistort_and_unwarp()` function takes as inputs the following parameter:
-    - `img`: the input image
-    - `nx`, `ny`: number of points along the axis
-    - `mtx`, `dist`:  camera calibration parameter
-    - `src`: the source matrix
-    - `offset`: offset used to compute the `dst` destination matrix by 
+* `img`: the input image
+* `nx`, `ny`: number of points along the axis
+* `mtx`, `dist`:  camera calibration parameter
+* `src`: the source matrix
+* `offset`: offset used to compute the `dst` destination matrix by 
             dst = np.float32([
                 [offset, 0],                       # top-left corner
                 [img_size[0]-offset, 0],           # top-right corner
@@ -101,14 +102,14 @@ The `undistort_and_unwarp()` function takes as inputs the following parameter:
             ])
 
 I chose to hardcode the source points in the following manner:
-       - Project Video:
+* Project Video:
                 | Source        | 
                 |:-------------:| 
                 | 590, 440      | 
                 | 690, 440      |
                 | 180, 680      |
                 | 1100, 680     |
-       - Challenge Video:
+* Challenge Video:
                 | Source        | 
                 |:-------------:| 
                 | 590, 460      | 
@@ -120,13 +121,13 @@ I chose to hardcode the source points in the following manner:
 Here's an example of my output for this step.
 
 <div align="center">
-    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+    <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/wrapped_output.png" width="500" />
 </div>
 
 ### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Using the perspective trasformed binary images computed in the previous step I can now plot an histobra on where the binary activation occurs across the x-axis. Hight values in the histogram identify where the lane lines are more likely to be.
-From the histogram I then divide the image based on the midpoint between the two highest histogram values and apply the sliding windows technique to search for the lane lines across the entire image and starting from the bottom hight value of the histogram.
+Using the perspective trasformed binary images computed in the previous step I can now plot an histogram on where the binary activation occurs across the x-axis. Hight values in the histogram identify where the lane lines are more likely to be.
+From the histogram I then divide the image based on the midpoint between the two highest histogram values and apply the sliding windows technique to search for the lane lines across the entire image starting from the bottom hight value of the histogram.
 All of this can be found in the `fit_polynomial_first()` and `find_lane_pixels_first()` functions of "AdvancedLaneFinding.ipynb".
 
 Once I've identifyed the lane lines of the first image i can switch to anothor tipe of search. The idea is that in the next image the lane line are likely to be in the same area of the lane lines identified in the previous image. 
@@ -135,7 +136,11 @@ So in the `fit_polynomial_prior()` function of "AdvancedLaneFinding.ipynb" we ar
 Here's an example of my output for this step.
 
 <div align="center">
-    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+    <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/fit_polynomial_first_output.png" width="500" />
+</div>
+
+<div align="center">
+    <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/fit_polynomial_prior_output.png" width="500" />
 </div>
 
 ### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
@@ -151,7 +156,7 @@ Ihis step is implemented in the `invert_transform()` function of "AdvancedLaneFi
 Here's an example of my output for this step.
 
 <div align="center">
-    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+    <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/pipeline_output.png" width="500" />
 </div>
 
 ---
@@ -160,11 +165,15 @@ Here's an example of my output for this step.
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Project Video:
-Here's a [link to my video result](./project_video.mp4)
+* Project Video:
+<div align="center">
+    <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/project_video_gif.gif" width="500" />
+</div>
 
-Challenge Video:
-Here's a [link to my video result](./project_video.mp4)
+* Challenge Video:
+<div align="center">
+    <img src="https://github.com/Ventu012/P2_AdvancedLaneLines/blob/main/output_images/challenge_video_gif.gif" width="500" />
+</div>
 
 ---
 
@@ -174,7 +183,12 @@ Here's a [link to my video result](./project_video.mp4)
 
 The main issues I faced during the implementation of this project are the following: horizon detection and binary threshold parameters.
 Basically this issues presented when I obtain a good result on the Project Video and decided to apply it also on the Challenge Video.
-Not only the region of interest was smoller but also the parameter used previously were not correct for the Challeng and I had to change both the values manually.
-To make it more robust I could implement same sort of horizon detection using sobel-y and from there derive the region of interest and 
+Not only the region of interest was wrong but also the binary threshold parameters used previously were not correct for the Challeng and I had to change both values manually.
+
+To make it more robust I could implement some sort of horizon detection using sobel-y and from there derive the region of interest, also for the binary threshold parameters we could try to find the best set of parameters to cover most of the situation found on the road.
+This could be done by dividing the original image in smaller image and, after computing the overall luminosity of the single smoller image, apply a specific set of binary threshold parameters to the smoller image. 
+
+Both of this suggestion could be usefull in the harder_challenge_video. In this video not only the horizion changes throught the entire video but also due to the frequent changes from sunny areas to shadow areas it is difficult to extract all the information using a single set of binary threshold parameters.
+
 
 
