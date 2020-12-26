@@ -1,6 +1,4 @@
-## Writeup Template
-
-### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
+# **Advanced Lane Finding Project**
 
 ---
 
@@ -27,88 +25,134 @@ The goals / steps of this project are the following:
 [image6]: ./examples/example_output.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
 
-## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
+<div align="center">
+    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+</div>
 
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
+##### [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
+
+##### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
 ---
 
-### Writeup / README
-
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
-
-You're reading it!
-
 ### Camera Calibration
 
-#### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
+### Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
-The code for this step is contained in the first code cell of the IPython notebook located in "./examples/example.ipynb" (or in lines # through # of the file called `some_file.py`).  
+The code for this step is contained in the `calibrate_camera()` function "AdvancedLaneFinding.ipynb".
 
 I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
 
-I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
+I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  
+I applied this distortion correction to the test image using the `cv2.undistort()`, computed by the undistort() function and obtained this result: 
 
-![alt text][image1]
+<div align="center">
+    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+</div>
 
-### Pipeline (single images)
+## Pipeline (single images)
 
-#### 1. Provide an example of a distortion-corrected image.
+### 1. Provide an example of a distortion-corrected image.
 
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
-![alt text][image2]
 
-#### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
+<div align="center">
+    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+</div>
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-![alt text][image3]
+I used a combination of color and gradient thresholds to generate a binary image, the steps can be found in the `hls_select()` function.
+In details from the original image I extract the following:
+    - From the RGB Image I extract the Red Channel and applying a binary threshold (r_thresh) I extract only the needed information.
+    - From the HLS Image I extract the H, L and S Channels and for each of them:
+        - H Channel: applying a binary threshold (h_thresh)
+        - L Channel: computing the Sobel along the x axis and applying a binary threshold (l_thresh)
+        - S Channel: applying a binary threshold (s_thresh)
 
-#### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
+In the end I compute the output binary image by applying the OR operation between the single Binary threshold Red, H, L and S.
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+color_binary[(l_binary_output == 1) | (r_binary_output == 1) | ((s_binary_output == 1) | (hue_binary_output == 1))] = 1
 
-```python
-src = np.float32(
-    [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    [((img_size[0] / 6) - 10), img_size[1]],
-    [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
-dst = np.float32(
-    [[(img_size[0] / 4), 0],
-    [(img_size[0] / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), 0]])
-```
+Here's an example of my output for this step.
 
-This resulted in the following source and destination points:
+<div align="center">
+    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+</div>
 
-| Source        | Destination   | 
-|:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
-| 203, 720      | 320, 720      |
-| 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
+The binary threshold used in the Project Videos are the following:
+       - Project Video: hls_select(img, s_thresh=(100, 255), l_thresh=(10, 100), r_thresh=(200, 255), h_thresh=(18,25), debug=0)
+       - Challenge Video: hls_select(img, s_thresh=(50, 255), l_thresh=(50, 100), r_thresh=(180, 255), h_thresh=(20,25), debug=0)
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-![alt text][image4]
+The code that generates my perspective transform is contained in the `undistort_and_unwarp()` function of "AdvancedLaneFinding.ipynb", it includes a function called `cv2.warpPerspective()`.  
+The `undistort_and_unwarp()` function takes as inputs the following parameter:
+    - `img`: the input image
+    - `nx`, `ny`: number of points along the axis
+    - `mtx`, `dist`:  camera calibration parameter
+    - `src`: the source matrix
+    - `offset`: offset used to compute the `dst` destination matrix by 
+            dst = np.float32([
+                [offset, 0],                       # top-left corner
+                [img_size[0]-offset, 0],           # top-right corner
+                [offset, img_size[1]],             # bottom-left corner
+                [img_size[0]-offset, img_size[1]]  # bottom-right corner
+            ])
 
-#### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
+I chose to hardcode the source points in the following manner:
+       - Project Video:
+                | Source        | 
+                |:-------------:| 
+                | 590, 440      | 
+                | 690, 440      |
+                | 180, 680      |
+                | 1100, 680     |
+       - Challenge Video:
+                | Source        | 
+                |:-------------:| 
+                | 590, 460      | 
+                | 690, 460      |
+                | 180, 680      |
+                | 1100, 680     |
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
 
-![alt text][image5]
+Here's an example of my output for this step.
 
-#### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
+<div align="center">
+    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+</div>
 
-I did this in lines # through # in my code in `my_other_file.py`
+### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
+
+Using the perspective trasformed binary images computed in the previous step I can now plot an histobra on where the binary activation occurs across the x-axis. Hight values in the histogram identify where the lane lines are more likely to be.
+From the histogram I then divide the image based on the midpoint between the two highest histogram values and apply the sliding windows technique to search for the lane lines across the entire image and starting from the bottom hight value of the histogram.
+All of this can be found in the `fit_polynomial_first()` and `find_lane_pixels_first()` functions of "AdvancedLaneFinding.ipynb".
+
+Once I've identifyed the lane lines of the first image i can switch to anothor tipe of search. The idea is that in the next image the lane line are likely to be in the same area of the lane lines identified in the previous image. 
+So in the `fit_polynomial_prior()` function of "AdvancedLaneFinding.ipynb" we are searching the new line lines using the previous lane lines +/- a margin as reference.
+
+Here's an example of my output for this step.
+
+<div align="center">
+    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+</div>
+
+### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
+
+I compute the curvature and the distance from center in the `get_curvature_and_center_delta()` function of "AdvancedLaneFinding.ipynb".
+In detail I call the `get_curvature_in_meter()` function of the Line Class that convert the lane fit in meters and then compute the curvature of the lane line. 
+At last the average between the left and right line curvatures is computed and returned.
+
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+Ihis step is implemented in the `invert_transform()` function of "AdvancedLaneFinding.ipynb".
+Here's an example of my output for this step.
 
-![alt text][image6]
+<div align="center">
+    <img src="https://github.com/Ventu012/P1_FindingLaneLines/blob/main/examples/line-segments-example.jpg" width="500" />
+</div>
 
 ---
 
@@ -116,6 +160,10 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
+Project Video:
+Here's a [link to my video result](./project_video.mp4)
+
+Challenge Video:
 Here's a [link to my video result](./project_video.mp4)
 
 ---
@@ -124,4 +172,9 @@ Here's a [link to my video result](./project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+The main issues I faced during the implementation of this project are the following: horizon detection and binary threshold parameters.
+Basically this issues presented when I obtain a good result on the Project Video and decided to apply it also on the Challenge Video.
+Not only the region of interest was smoller but also the parameter used previously were not correct for the Challeng and I had to change both the values manually.
+To make it more robust I could implement same sort of horizon detection using sobel-y and from there derive the region of interest and 
+
+
